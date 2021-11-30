@@ -117,7 +117,7 @@ def p_expr7(p):
 
 def p_expr8(p):
     """ expr : expr "\'" """
-    p[0] = AST.UnaryTranspose(p[2])
+    p[0] = AST.UnaryTranspose(p[1])
 
 
 def p_assignment_statement(p):

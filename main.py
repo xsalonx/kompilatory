@@ -1,6 +1,5 @@
 import sys
 
-import AST
 import scanner
 import Mparser
 from TreePrinter import TreePrinter
