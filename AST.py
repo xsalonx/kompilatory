@@ -4,94 +4,98 @@ class Node:
         self.left = left
         self.right = right
 
-class Block(Node):
-    def  __init__(self, content):
-        self.content = content
+class Block:
+    def __init__(self, inside):
+        self.inside = inside
 
-class IntNum(Node):
+class IntNum:
     def __init__(self, value):
         self.value = value
 
-class FloatNum(Node):
+class FloatNum:
     def __init__(self, value):
         self.value = value
 
-class String(Node):
+class String:
     def __init__(self, string):
         self.string = string
 
-class Printable(Node):
+class Printable:
     def __init__(self, printable, nxt=None):
         self.printable = printable
-        self.nxt = nxt  # plaska lista
+        self.nxt = nxt
 
-class Variable(Node):
+class Variable:
     def __init__(self, name):
         self.name = name
 
-class BinExpr(Node):
+class BinaryExpr:
     def __init__(self, op, left, right):
         self.op = op
         self.left = left
         self.right = right
 
-class MatWord(Node):
+class MatrixSpecialWord:
     def __init__(self, word, value):
         self.word = word
         self.value = value
 
-class ReturnStatement(Node):
+class ReturnStatement:
     def __init__(self, word, value=None):
         self.word = word
         self.value = value
 
-class PrintStatement(Node):
+class PrintStatement:
     def __init__(self, content):
         self.content = content
 
-class UnaryMinus(Node):
+class UnaryMinus:
     def __init__(self, expr):
         self.expr = expr
 
-class UnaryTranspose(Node):
+class UnaryTranspose:
     def __init__(self, expr):
         self.expr = expr
 
-class ForLoop(Node):
+class ForLoop:
     def __init__(self, var, _range, block):
         self.var = var
         self._range = _range
         self.block = block
 
-class WhileLoop(Node):
+class WhileLoop:
     def __init__(self, condition, operations):
         self.condition = condition
         self.operations = operations
 
-class IfElse(Node):
-    def __init__(self, condition, ifBlock, elseBlock=None):
+class If:
+    def __init__(self, condition, ifBlock):
+        self.condition = condition
+        self.ifBlock = ifBlock
+
+class IfElse:
+    def __init__(self, condition, ifBlock, elseBlock):
         self.condition = condition
         self.ifBlock = ifBlock
         self.elseBlock = elseBlock
 
-class Matrix(Node):
-    def __init__(self, inside, deepInside):
+class Matrix:
+    def __init__(self, inside):
         self.inside = inside
-        self.deepInside = deepInside
 
-class Vector(Node):
+class Vector:
     def __init__(self, inside):
         self.inside = inside
 
 
-class BreakInstruction(Node):
+class BreakInstruction:
     def __init__(self):
         pass
 
-class ContinueInstruction(Node):
+class ContinueInstruction:
     def __init__(self):
         pass
 
-class Error(Node):
+class Error:
     def __init__(self):
         pass
