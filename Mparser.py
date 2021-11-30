@@ -141,7 +141,7 @@ def p_assignable(p):
 def p_matrix_init(p):
     """matrix_init : '[' vector ']'
                    | matrix_init ',' '[' vector ']' """
-    if len(p) == 3:
+    if len(p) == 4:
         p[0] = AST.Vector(p[2])
     else:
         p[0] = AST.Node(p[1], AST.Vector(p[4]))
