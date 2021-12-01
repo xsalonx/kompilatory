@@ -57,6 +57,13 @@ class TreePrinter:
         self.left.printTree(indent + 1)
         self.right.printTree(indent + 1)
 
+    @addToClass(AST.MatrixAccess)
+    def printTree(self, indent=0):
+        print("| " * indent + "MATRIXACCESSS")
+        self.matrixID.printTree(indent + 1)
+        self.row.printTree(indent + 1)
+        self.column.printTree(indent + 1)
+
     @addToClass(AST.MatrixSpecialWord)
     def printTree(self, indent=0):
         print("| " * indent + self.word)
@@ -72,7 +79,7 @@ class TreePrinter:
         print("| " * indent + '-')
         self.expr.printTree(indent + 1)
 
-    @addToClass(AST.UnaryTranspose)
+    @addToClass(AST.Transpose)
     def printTree(self, indent=0):
         print("| " * indent + "TRANSPOSE")
         self.expr.printTree(indent + 1)
@@ -95,22 +102,22 @@ class TreePrinter:
         print("| " * indent + "IF")
         self.condition.printTree(indent + 1)
         print("| " * indent + "THEN")
-        self.ifBlock.printTree(indent + 1)
+        self.thenBlock.printTree(indent + 1)
 
     @addToClass(AST.IfElse)
     def printTree(self, indent=0):
         print("| " * indent + "IF")
         self.condition.printTree(indent + 1)
         print("| " * indent + "THEN")
-        self.ifBlock.printTree(indent + 1)
+        self.thenBlock.printTree(indent + 1)
         print("| " * indent + "ELSE")
         self.elseBlock.printTree(indent + 1)
 
-    @addToClass(AST.BreakInstruction)
+    @addToClass(AST.Break)
     def printTree(self, indent=0):
         print("| " * indent + 'BREAK')
 
-    @addToClass(AST.ContinueInstruction)
+    @addToClass(AST.Continue)
     def printTree(self, indent=0):
         print("| " * indent + 'CONTINUE')
 
