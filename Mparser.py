@@ -14,9 +14,11 @@ precedence = (
     ("nonassoc", '=', "ADDASSIGN", "SUBASSIGN", "MULASSIGN", "DIVASSIGN"),
     ("nonassoc", '<', '>', "LE", "GE", "NE", "EQ"),
     ("left", '+', '-'),
-    ("left", '*', '/'),
     ("left", "DOTADD", "DOTSUB"),
+
+    ("left", '*', '/'),
     ("left", "DOTMUL", "DOTDIV"),
+
     ("left", "\'"),
     ("right", "UNARY")
 )
