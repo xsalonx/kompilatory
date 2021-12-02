@@ -4,11 +4,6 @@ class Node:
         self.right = right
 
 
-class Block:
-    def __init__(self, inside):
-        self.inside = inside
-
-
 class IntNum:
     def __init__(self, value):
         self.value = value
@@ -24,12 +19,6 @@ class String:
         self.string = string
 
 
-class Printable:
-    def __init__(self, printable, nxt=None):
-        self.printable = printable
-        self.nxt = nxt
-
-
 class Variable:
     def __init__(self, name):
         self.name = name
@@ -42,28 +31,17 @@ class BinaryExpr:
         self.right = right
 
 
-class MatrixAccess:
-    def __init__(self, matrixID, row, column):
-        self.matrixID = matrixID
-        self.row = row
-        self.column = column
+class Range:
+    def __init__(self, _from, to):
+        self._from = _from
+        self.to = to
 
 
-class MatrixSpecialWord:
-    def __init__(self, word, value):
-        self.word = word
-        self.value = value
-
-
-class ReturnStatement:
-    def __init__(self, word, value=None):
-        self.word = word
-        self.value = value
-
-
-class PrintStatement:
-    def __init__(self, content):
-        self.content = content
+class Ref:
+    def __init__(self, var, x, y):
+        self.var = var
+        self.x = x
+        self.y = y
 
 
 class UnaryMinus:
@@ -71,9 +49,16 @@ class UnaryMinus:
         self.expr = expr
 
 
-class Transpose:
+class UnaryTranspose:
     def __init__(self, expr):
         self.expr = expr
+
+
+class IfStatement:
+    def __init__(self, condition, ifBlock, elseBlock=None):
+        self.condition = condition
+        self.ifBlock = ifBlock
+        self.elseBlock = elseBlock
 
 
 class ForLoop:
@@ -84,42 +69,45 @@ class ForLoop:
 
 
 class WhileLoop:
-    def __init__(self, condition, operations):
+    def __init__(self, condition, block):
         self.condition = condition
-        self.operations = operations
+        self.block = block
 
 
-class If:
-    def __init__(self, condition, thenBlock):
-        self.condition = condition
-        self.thenBlock = thenBlock
+class BreakInstruction:
+    def __init__(self):
+        pass
 
 
-class IfElse:
-    def __init__(self, condition, thenBlock, elseBlock):
-        self.condition = condition
-        self.thenBlock = thenBlock
-        self.elseBlock = elseBlock
+class ContinueInstruction:
+    def __init__(self):
+        pass
 
 
-class Matrix:
-    def __init__(self, inside):
-        self.inside = inside
+class ReturnStatement:
+    def __init__(self, value=None):
+        self.value = value
+
+
+class Printable:
+    def __init__(self, printable):
+        self.printable = printable
+
+
+class PrintStatement:
+    def __init__(self, content):
+        self.content = content
+
+
+class MatrixSpecialWord:
+    def __init__(self, word, value):
+        self.word = word
+        self.value = value
 
 
 class Vector:
     def __init__(self, inside):
         self.inside = inside
-
-
-class Break:
-    def __init__(self):
-        pass
-
-
-class Continue:
-    def __init__(self):
-        pass
 
 
 class Error:
