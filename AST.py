@@ -4,6 +4,11 @@ class Node:
         self.right = right
 
 
+class Scope:
+    def __init__(self, _type):
+        self._type = _type
+
+
 class IntNum:
     def __init__(self, value):
         self.value = value

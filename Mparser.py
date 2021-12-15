@@ -8,6 +8,19 @@ is_error = False
 
 tokens = scanner.tokens
 
+scopes = []
+
+
+def push_scope(s):
+    print("push")
+    pass
+
+
+def pop_scope(s):
+    print("pop")
+    pass
+
+
 precedence = (
     ("nonassoc", "IFX"),
     ("nonassoc", "ELSE"),
@@ -58,9 +71,21 @@ def p_instructions_2(p):
     p[0] = p[1]
 
 
+def p_scopestart(p):
+    """ scopestart : """
+    p[0] = AST.Scope("start")
+    push_scope(scopes)
+
+
+def p_scopeend(p):
+    """ scopeend : """
+    p[0] = AST.Scope("end")
+    pop_scope(scopes)
+
+
 def p_instruction_1(p):
-    """ instruction : '{' instructions '}' """
-    p[0] = p[2]
+    """ instruction : '{' scopestart instructions scopeend '}' """
+    p[0] = p[3]
 
 
 def p_instruction_2(p):
