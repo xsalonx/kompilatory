@@ -3,6 +3,8 @@ import AST
 import SymbolTable
 from collections import defaultdict
 
+is_error = False
+
 symtable = SymbolTable.SymbolTable(None, "symtable")
 ttype = defaultdict(lambda: defaultdict(lambda: defaultdict(str)))
 
@@ -89,6 +91,9 @@ class Error:
     def __init__(self, code, lineno):
         self.code = code
         self.lineno = lineno
+
+        global is_error
+        is_error = True
 
     def __str__(self):
         return f'{self.errors[self.code]} in line {self.lineno}'

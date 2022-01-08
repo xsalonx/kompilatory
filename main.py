@@ -3,7 +3,7 @@ import ply.yacc as yacc
 import Mparser
 import scanner
 from TreePrinter import TreePrinter
-from TypeChecker import TypeChecker
+import TypeChecker
 from Interpreter import Interpreter
 
 
@@ -22,10 +22,12 @@ if __name__ == '__main__':
     ast = parser.parse(text, lexer=scanner.lexer)
 
     # Below code shows how to use visitor
-    typeChecker = TypeChecker()   
-    typeChecker.visit(ast)   # or alternatively ast.accept(typeChecker)
+    if not Mparser.is_error:
+        typeChecker = TypeChecker.TypeChecker()
+        typeChecker.visit(ast)   # or alternatively ast.accept(typeChecker)
+        if not TypeChecker.is_error:
+            ast.accept(Interpreter())
 
-    ast.accept(Interpreter())
     # in future
     # ast.accept(OptimizationPass1())
     # ast.accept(OptimizationPass2())
