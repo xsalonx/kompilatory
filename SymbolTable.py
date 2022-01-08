@@ -23,22 +23,22 @@ class SymbolTable(object):
         self.scopes[self.current_scope][0][name] = VariableSymbol(name, symbol)
 
     def get(self, name):  # get variable symbol or fundef from <name> entry
-        iScope = self.current_scope
-        while iScope >= 0:
-            if name in self.scopes[iScope][0]:
-                return self.scopes[iScope][0][name]
-            iScope -= 1
+        scope_it = self.current_scope
+        while scope_it >= 0:
+            if name in self.scopes[scope_it][0]:
+                return self.scopes[scope_it][0][name]
+            scope_it -= 1
         return None
 
     def getParentScope(self):
         return self.parent
 
     def getScope(self, name):
-        iScope = self.current_scope
-        while iScope >= 0:
-            if self.scopes[iScope][1] == name:
-                return self.scopes[iScope]
-            iScope -= 1
+        scope_it = self.current_scope
+        while scope_it >= 0:
+            if self.scopes[scope_it][1] == name:
+                return self.scopes[scope_it]
+            scope_it -= 1
         return None
 
     def pushScope(self, name):
