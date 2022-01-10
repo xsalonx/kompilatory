@@ -1,9 +1,9 @@
 
 x = 0;
-y = zeros(5);
+y = 0;
 z = x + y;
 
-x = eye(5);
+x = eye(8);
 y = eye(8);
 z = x + y;
 
