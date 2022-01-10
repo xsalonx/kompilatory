@@ -121,9 +121,14 @@ def p_expr_5(p):
     p[0] = AST.FloatNum(p[1], lineno=p.lineno(1))
 
 
+def p_matrix_ref(p):
+    """matrix_ref : ID '[' expr ',' expr ']' """
+    p[0] = AST.Ref(AST.Variable(p[1]), p[3], p[5], lineno=p.lineno(1))
+
 def p_expr_6(p):
-    """expr : assignable """
-    p[0] = p[1]
+    """expr : ID
+            | matrix_ref"""
+    p[0] = p[1] if isinstance(p[1], AST.Ref) else AST.Variable(p[1], lineno=p.lineno(1))
 
 
 def p_expr_7(p):
@@ -150,11 +155,11 @@ def p_assignment_statement(p):
     p[0] = AST.BinaryExpr(p[2], p[1], p[3], lineno=p.lineno(2))
 
 
+
 def p_assignable(p):
     """assignable : ID
-                  | ID '[' expr ',' expr ']' """
-    p[0] = AST.Variable(p[1], lineno=p.lineno(1)) if len(p) == 2 else AST.Ref(AST.Variable(p[1]), p[3], p[5],
-                                                                              lineno=p.lineno(1))
+                  | matrix_ref """
+    p[0] = p[1] if isinstance(p[1], AST.Ref) else AST.Variable(p[1], lineno=p.lineno(1))
 
 
 def p_matrix_init(p):

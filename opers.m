@@ -1,4 +1,7 @@
 
+y = x[1, 2];
+
+
 x = 0;
 y = zeros(5);
 z = x + y;
@@ -17,6 +20,6 @@ x = zeros(5);
 y = zeros(5);
 z = x + y;
 
-x = ones(35);
+x = ones(366);
 z = x[7,10];
 v = x[2,3];

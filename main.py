@@ -20,9 +20,9 @@ if __name__ == '__main__':
 
     ast = parser.parse(text, lexer=scanner.lexer)
 
-    # if not Mparser.is_error:
-        # ast.printTree()
+    if not Mparser.is_error:
+        ast.printTree()
 
     # Below code shows how to use visitor
     typeChecker = TypeChecker()
-    typeChecker.visit(ast)   # or alternatively ast.accept(typeChecker)
+    # typeChecker.visit(ast)   # or alternatively ast.accept(typeChecker)
