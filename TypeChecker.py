@@ -72,6 +72,14 @@ castable_operations = ['/', '+', '-', '*', '>', '<', ">=", "<=", "==", "!="]
 castable_matrix_operations = [".+", ".-", ".*", "./"]
 castable_types = ["int", "float"]
 
+def ttype_contains(t):
+    sub_ttype = ttype
+    for e in t:
+        if e not in sub_ttype:
+            return False
+        else:
+            sub_ttype = sub_ttype[e]
+    return True
 
 class Error:
     errors = {
@@ -137,40 +145,40 @@ class TypeChecker(NodeVisitor):
         type2 = self.visit(node.right)
 
         if op == '=':
-            if hasattr(node.left, 'op'):
-                type1 = self.visit(node.left)
-                if type1 != type2:
-                    print(Error('diff_ty', node.lineno))
-                    return None
-                return None
-            else:
+            if isinstance(node.left, AST.Variable):
                 if type2:
                     symtable.put(node.left.name, type2)
-                return None
-
-
+            elif isinstance(node.left, AST.Ref):
+                type1 = self.visit(node.left)
+                if type2 != type1 and (type2 not in castable_types or type2 not in castable_types):
+                    print(Error('diff_ty', node.lineno), '141')
+            return None
 
         type1 = self.visit(node.left)
         if op in castable_operations and type1 in castable_types and type2 in castable_types:
             return ttype[op][type1][type2]
 
         if isinstance(type1, tuple) and isinstance(type2, tuple):
-            rows1, cols1, vals1 = type1[0], type1[1], type1[2]
-            rows2, cols2, vals2 = type2[0], type2[1], type2[2]
-            if not (rows1 == rows2 and cols1 == cols2):
-                print(Error('wr_mat_sizes_op', node.lineno))
-                return None
-            if not (op, vals1, vals2) in ttype:
-                print(Error('diff_ty', node.lineno))
-                return None
-            return (rows1, cols1, ttype[op][vals1][vals2])
+            # print(type1)
+            # print(type2)
+            if len(type1) == len(type2) == 3:
+                rows1, cols1, vals1 = type1[0], type1[1], type1[2]
+                rows2, cols2, vals2 = type2[0], type2[1], type2[2]
+                if not (rows1 == rows2 and cols1 == cols2):
+                    print(Error('diff_ty', node.lineno))
+                    return None
+                if not ttype_contains((op, vals1, vals2)):
+                    print(Error('diff_ty', node.lineno), '155')
+                    return None
+                return (rows1, cols1, ttype[op][vals1][vals2])
 
         if op in castable_matrix_operations:  # matrix op on non-matrix type
             print(Error('mat_op_on_non_mat', node.lineno))
             return None
 
         if type1 != type2:
-            print(Error('diff_ty', node.lineno))
+            print(type1, type2)
+            print(Error('diff_ty', node.lineno), '164')
             return None
 
         print(op)
@@ -181,7 +189,7 @@ class TypeChecker(NodeVisitor):
         if var is None:
             print(Error("no_var", node.lineno))
             return None
-        return var
+        return var.type
 
     def visit_IntNum(self, node):
         return "int"
@@ -283,7 +291,6 @@ class TypeChecker(NodeVisitor):
             n = n.left
         # TODO
 
-
     def visit_MatrixSpecialWord(self, node):
         type1 = self.visit(node.value)
         if type1 != "int":
@@ -291,7 +298,7 @@ class TypeChecker(NodeVisitor):
         size = node.value.value
         return size, size, "int"
 
-    def visit_Vector(self, node):
+    def visit_Vector(self, node): # TODO
         n = node.inside
         ts = self.visit(n.right)
         l = 0
@@ -307,7 +314,7 @@ class TypeChecker(NodeVisitor):
         n = node
         s, t = self.visit(n.right)
         l = 0
-        while isinstance(n, AST.Node):
+        while isinstance(n, AST.Node): # TODO
             if self.visit(n.right) != (s, t):
                 print(Error("diff_ty", node.lineno))
             n = n.left
