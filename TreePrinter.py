@@ -15,9 +15,9 @@ class TreePrinter:
 
     @addToClass(AST.Node)
     def printTree(self, indent=0):
-        if self.left:
+        if hasattr(self, 'left') and self.left:
             self.left.printTree(indent)
-        if self.right:
+        if hasattr(self, 'right') and self.right:
             self.right.printTree(indent)
 
     @addToClass(AST.Scope)
@@ -123,6 +123,11 @@ class TreePrinter:
     @addToClass(AST.Vector)
     def printTree(self, indent=0):
         print(branch * indent + "VECTOR")
+        self.inside.printTree(indent + 1)
+
+    @addToClass(AST.Matrix)
+    def printTree(self, indent=0):
+        print(branch * indent + "MATRIX")
         self.inside.printTree(indent + 1)
 
     @addToClass(AST.Error)

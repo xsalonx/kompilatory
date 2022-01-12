@@ -288,7 +288,7 @@ class TypeChecker(NodeVisitor):
 
     def visit_PrintStatement(self, node):
         n = node.content
-        while isinstance(n, AST.Node):
+        while hasattr(n, 'left') and hasattr(n, 'right'):
             self.visit(n.right)
             n = n.left
         self.visit(n)
@@ -304,7 +304,7 @@ class TypeChecker(NodeVisitor):
         n = node.inside
         elem_type = self.visit(n.right)
         l = 0
-        while isinstance(n, AST.Node):
+        while hasattr(n, 'left') and hasattr(n, 'right'):
             if elem_type != self.visit(n.right):
                 print(Error("diff_ty", node.lineno))
             n = n.left
@@ -315,10 +315,10 @@ class TypeChecker(NodeVisitor):
         return (l, elem_type)
 
     def visit_Matrix(self, node):
-        n = node
+        n = node.inside
         size, elem_type = self.visit(n.right)
         rows_numb = 0
-        while isinstance(n, AST.Node):
+        while hasattr(n, 'left') and hasattr(n, 'right'):
             if self.visit(n.right) != (size, elem_type):
                 print(Error("diff_ty", node.lineno))
             n = n.left
