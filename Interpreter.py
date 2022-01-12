@@ -8,10 +8,6 @@ import sys
 sys.setrecursionlimit(10000)
 
 
-def mul(x, y):
-    # TODO
-    return x * y
-
 
 def dot_add(x, y):
     if not (len(x) == len(y) and len(x[0]) == len(y[0])):
@@ -54,16 +50,12 @@ class Interpreter(object):
         self.op_dict = {
             '+': lambda x, y: x + y,
             '-': lambda x, y: x - y,
-            '*': mul,
+            '*': lambda x, y: x * y,
             '/': lambda x, y: x / y,
             '.+': dot_add,
             '.-': dot_sub,
             '.*': dot_mul,
             './': dot_div,
-            '+=': lambda var, x, y: self.scopes.set(var, x + y),
-            '-=': lambda var, x, y: self.scopes.set(var, x - y),
-            '*=': lambda var, x, y: self.scopes.set(var, x * y),
-            '/=': lambda var, x, y: self.scopes.set(var, x / y),
             '<': lambda x, y: x < y,
             '>': lambda x, y: x > y,
             '<=': lambda x, y: x <= y,
@@ -74,6 +66,13 @@ class Interpreter(object):
             'eye': lambda size: [[1 if i == j else 0 for j in range(size)] for i in range(size)],
             'zeros': lambda size: [[0 for j in range(size)] for i in range(size)],
             'ones': lambda size: [[1 for j in range(size)] for i in range(size)]
+        }
+        self.assignment_op_dict = {
+            '+=': lambda var, y: self.scopes.set(var, self.scopes.get(var) + y),
+            '-=': lambda var, y: self.scopes.set(var, self.scopes.get(var) - y),
+            '*=': lambda var, y: self.scopes.set(var, self.scopes.get(var) * y),
+            '/=': lambda var, y: self.scopes.set(var, self.scopes.get(var) / y),
+            '=': lambda var, x: self.scopes.set(var, x),
         }
 
     @on('node')
@@ -99,7 +98,7 @@ class Interpreter(object):
 
     @when(AST.String)
     def visit(self, node):
-        return node.string   # TODO czy to jest ok ? (czemu node.string[1:-1])
+        return node.string[1:-1]
 
     @when(AST.Variable)
     def visit(self, node):
@@ -107,7 +106,23 @@ class Interpreter(object):
 
     @when(AST.BinaryExpr)
     def visit(self, node):
-        pass
+        op = node.op
+        if op in self.assignment_op_dict:
+            if isinstance(node.left, AST.Ref):
+                M = self.scopes.get(node.left.var.name)
+                row = node.left.x
+                col = node.left.y
+                v = self.visit(node.right)
+                if op[0] == '=':
+                    M[row][col] = v
+                else:
+                    M[row][col] = self.op_dict[op[0]](M[row][col], v)
+            else:
+                self.assignment_op_dict[op](node.left.name, self.visit(node.right))
+        else:
+            vl = self.visit(node.left)
+            vr = self.visit(node.right)
+            return self.op_dict[op](vl, vr)
 
     @when(AST.Range)
     def visit(self, node):
@@ -115,7 +130,10 @@ class Interpreter(object):
 
     @when(AST.Ref)
     def visit(self, node):
-        pass
+        M = self.scopes.get(node.var.name)
+        row = node.x
+        col = node.y
+        return M[row][col]
 
     @when(AST.UnaryMinus)
     def visit(self, node):
@@ -137,15 +155,38 @@ class Interpreter(object):
 
     @when(AST.IfStatement)
     def visit(self, node):
-        pass
+        if self.visit(node.condition):
+            self.visit(node.ifBlock)
+        elif node.elseBlock is not None:
+            self.visit(node.elseBlock)
 
     @when(AST.ForLoop)
     def visit(self, node):
-        pass
+        _range = self.visit(node._range)
+        varname = node.var.name
+        for _i in _range:
+            try:
+                self.scopes.set(varname, _i)
+                self.visit(node.block)
+            except ReturnValueException as e:
+                return e.value
+            except BreakException as e:
+                break
+            except ContinueException as e:
+                continue
 
     @when(AST.WhileLoop)
     def visit(self, node):
-        pass
+        cond_node = node.condition
+        while self.visit(cond_node):
+            try:
+                self.visit(node.block)
+            except ReturnValueException as e:
+                return e.value
+            except BreakException as e:
+                break
+            except ContinueException as e:
+                continue
 
     @when(AST.BreakInstruction)
     def visit(self, node):
@@ -167,9 +208,11 @@ class Interpreter(object):
     @when(AST.PrintStatement)
     def visit(self, node):
         text = ""
-        for printable in node.content:
-            r = self.visit(printable)
-            text += str(r) + " "
+        p = node.content
+        while isinstance(p, AST.Node):
+            text += str(self.visit(p.right)) + " "
+            p = p.left
+        text += str(self.visit(p))
         print(text)
 
     @when(AST.MatrixSpecialWord)
@@ -180,17 +223,21 @@ class Interpreter(object):
     @when(AST.Vector)
     def visit(self, node):
         result = []
-        for val in node.inside:
-            r = self.visit(val)
-            result.append(r)
+        n = node
+        while isinstance(n, AST.Node):
+            result = [self.visit(n.right)] + result
+            n = n.left
+        result = [self.visit(n)] + result
         return result
 
     @when(AST.Matrix)
     def visit(self, node):
         result = []
-        for row in node.inside:
-            r = self.visit(row)
-            result.append(r)
+        n = node
+        while isinstance(n, AST.Node):
+            result = [self.visit(n.right)] + result
+            n = n.left
+        result = [self.visit(n)] + result
         return result
 
     @when(AST.Error)

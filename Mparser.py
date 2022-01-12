@@ -101,9 +101,9 @@ def p_expr_2(p):
     p[0] = AST.Matrix(p[2], lineno=p.lineno(1))
 
 
-def p_expr_21(p):
-    """expr : '[' vector ']' """
-    p[0] = AST.Vector(p[2], lineno=p.lineno(1))
+# def p_expr_21(p):
+#     """expr : '[' vector_init ']' """
+#     p[0] = AST.Vector(p[2], lineno=p.lineno(1))
 
 
 def p_expr_3(p):
@@ -127,22 +127,24 @@ def p_matrix_ref(p):
 
 def p_expr_6(p):
     """expr : ID
-            | matrix_ref
-            | STRING """
+            | matrix_ref """
     p[0] = p[1] if isinstance(p[1], AST.Ref) else AST.Variable(p[1], lineno=p.lineno(1))
 
-
 def p_expr_7(p):
+    """expr : STRING """
+    p[0] = AST.String(p[1], lineno=p.lineno(1))
+
+def p_expr_8(p):
     """expr : '(' expr ')' """
     p[0] = p[2]
 
 
-def p_expr_8(p):
+def p_expr_9(p):
     """ expr : '-' expr %prec UNARY """
     p[0] = AST.UnaryMinus(p[2], lineno=p.lineno(1))
 
 
-def p_expr_9(p):
+def p_expr_10(p):
     """ expr : expr "\'" """
     p[0] = AST.UnaryTranspose(p[1], lineno=p.lineno(2))
 
@@ -164,14 +166,14 @@ def p_assignable(p):
 
 
 def p_matrix_init(p):
-    """matrix_init : '[' vector ']'
-                   | matrix_init ',' '[' vector ']' """
+    """matrix_init : '[' vector_init ']'
+                   | matrix_init ',' '[' vector_init ']' """
     p[0] = AST.Vector(p[2], lineno=p.lineno(1)) if len(p) == 4 else AST.Node(p[1], AST.Vector(p[4]))
 
 
 def p_vector(p):
-    """vector : expr
-              | vector ',' expr """
+    """vector_init : expr
+              | vector_init ',' expr """
     p[0] = p[1] if len(p) == 2 else AST.Node(p[1], p[3])
 
 

@@ -34,7 +34,7 @@ class TreePrinter:
 
     @addToClass(AST.String)
     def printTree(self, indent=0):
-        print(branch * indent + self.string)
+        print(branch * indent + f'{self.string}')
 
     @addToClass(AST.Variable)
     def printTree(self, indent=0):

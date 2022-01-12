@@ -8,6 +8,8 @@ is_error = False
 symtable = SymbolTable.SymbolTable(None, "symtable")
 ttype = defaultdict(lambda: defaultdict(lambda: defaultdict(str)))
 
+ttype['+']["str"]["str"] = "str"
+
 ttype['+']["int"]["int"] = "int"
 ttype['-']["int"]["int"] = "int"
 ttype['*']["int"]["int"] = "int"
@@ -159,8 +161,6 @@ class TypeChecker(NodeVisitor):
             return ttype[op][type1][type2]
 
         if isinstance(type1, tuple) and isinstance(type2, tuple):
-            # print(type1)
-            # print(type2)
             if len(type1) == len(type2) == 3:
                 rows1, cols1, vals1 = type1[0], type1[1], type1[2]
                 rows2, cols2, vals2 = type2[0], type2[1], type2[2]
@@ -171,6 +171,9 @@ class TypeChecker(NodeVisitor):
                     print(Error('diff_ty', node.lineno), '155')
                     return None
                 return (rows1, cols1, ttype[op][vals1][vals2])
+            else:
+                print("matrices other than 3-dim nor supported, ", node.lineno)
+                return None
 
         if op in castable_matrix_operations:  # matrix op on non-matrix type
             print(Error('mat_op_on_non_mat', node.lineno))
@@ -181,7 +184,6 @@ class TypeChecker(NodeVisitor):
             print(Error('diff_ty', node.lineno), '164')
             return None
 
-        print(op)
         return ttype[op][type1][type2]
 
     def visit_Variable(self, node):
@@ -207,8 +209,8 @@ class TypeChecker(NodeVisitor):
         return "int" if t1 == t2 == "int" else None
 
     def visit_Ref(self, node):
-        type1 = self.visit(node.x)
-        type2 = self.visit(node.y)
+        x_type = self.visit(node.x)
+        y_type = self.visit(node.y)
         tmp = symtable
         var = node.var
         varAST = symtable.get(var.name)
@@ -218,7 +220,7 @@ class TypeChecker(NodeVisitor):
             print(Error("no_var", node.lineno))
             return None
         rows, cols, mat_type = var_type[0], var_type[1], var_type[2]
-        if type1 == type2 == "int":
+        if x_type == y_type == "int":
             if hasattr(node.x, "value") and (
                     node.x.value <= 0 or node.x.value > rows or node.y.value <= 0 or node.y.value > cols):
                 print(Error("inv_mat_arg_values", node.lineno))
@@ -229,7 +231,7 @@ class TypeChecker(NodeVisitor):
             return None
 
     def visit_UnaryMinus(self, node):
-        self.visit(node.expr)
+        return self.visit(node.expr)
 
     def visit_UnaryTranspose(self, node):
         type1 = self.visit(node.expr)
@@ -285,11 +287,11 @@ class TypeChecker(NodeVisitor):
         self.visit(node.printable)
 
     def visit_PrintStatement(self, node):
-        n = node
+        n = node.content
         while isinstance(n, AST.Node):
             self.visit(n.right)
             n = n.left
-        # TODO
+        self.visit(n)
 
     def visit_MatrixSpecialWord(self, node):
         type1 = self.visit(node.value)
@@ -298,28 +300,33 @@ class TypeChecker(NodeVisitor):
         size = node.value.value
         return size, size, "int"
 
-    def visit_Vector(self, node): # TODO
+    def visit_Vector(self, node):
         n = node.inside
-        ts = self.visit(n.right)
+        elem_type = self.visit(n.right)
         l = 0
         while isinstance(n, AST.Node):
-            if ts != self.visit(n.right):
+            if elem_type != self.visit(n.right):
                 print(Error("diff_ty", node.lineno))
             n = n.left
             l += 1
-        # TODO
-        return l, ts
+        if elem_type != self.visit(n):
+            print(Error("diff_ty", node.lineno))
+        l += 1
+        return (l, elem_type)
 
     def visit_Matrix(self, node):
         n = node
-        s, t = self.visit(n.right)
-        l = 0
-        while isinstance(n, AST.Node): # TODO
-            if self.visit(n.right) != (s, t):
+        size, elem_type = self.visit(n.right)
+        rows_numb = 0
+        while isinstance(n, AST.Node):
+            if self.visit(n.right) != (size, elem_type):
                 print(Error("diff_ty", node.lineno))
             n = n.left
-            l += 1
-        return l, s, t
+            rows_numb += 1
+        if (size, elem_type) != self.visit(n):
+            print(Error("diff_ty", node.lineno))
+        rows_numb += 1
+        return rows_numb, size, elem_type
 
     def visit_Error(self, node):
         print(Error("error", node.lineno))

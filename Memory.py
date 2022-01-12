@@ -40,7 +40,6 @@ class MemoryStack:
         while mem_stack_it >= 0:
             if self.mem_stack[mem_stack_it].has_key(name):
                 self.mem_stack[mem_stack_it].put(name, value)
-                return
             mem_stack_it -= 1
         self.insert(name, value)
 
