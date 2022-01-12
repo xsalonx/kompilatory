@@ -7,7 +7,6 @@ import sys
 
 sys.setrecursionlimit(10000)
 
-DEBUG = False
 
 
 def dot_add(x, y):
@@ -65,8 +64,8 @@ class Interpreter(object):
             '==': lambda x, y: x == y,
             'unary_minus': unary_minus,
             'eye': lambda size: [[1 if i == j else 0 for j in range(size)] for i in range(size)],
-            'zeros': lambda size: [[0 for j in range(size)] for i in range(size)],
-            'ones': lambda size: [[1 for j in range(size)] for i in range(size)]
+            'zeros': lambda size: [[0] * size for i in range(size)],
+            'ones': lambda size: [[1] * size for i in range(size)]
         }
         self.assignment_op_dict = {
             '+=': lambda var, y: self.scopes.set(var, self.scopes.get(var) + y),
@@ -108,7 +107,6 @@ class Interpreter(object):
     @when(AST.BinaryExpr)
     def visit(self, node):
         op = node.op
-        if DEBUG: print("DEBUG interpreter: bin expr", node.op)
         if op in self.assignment_op_dict:
             if isinstance(node.left, AST.Ref):
                 M = self.scopes.get(node.left.var.name)
@@ -124,9 +122,6 @@ class Interpreter(object):
         else:
             vl = self.visit(node.left)
             vr = self.visit(node.right)
-            if DEBUG:
-                print(node.left, vl, type(vl))
-                print(node.right, vr, type(vr))
             return self.op_dict[op](vl, vr)
 
     @when(AST.Range)
@@ -186,7 +181,6 @@ class Interpreter(object):
     def visit(self, node):
         cond_node = node.condition
         while self.visit(cond_node):
-            if DEBUG: print("DEBUG interpreter WHILE LOOP: ", self.visit(cond_node), self.scopes.get('b'))
             try:
                 self.visit(node.block)
             except ReturnValueException as e:
