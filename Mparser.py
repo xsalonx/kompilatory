@@ -127,7 +127,8 @@ def p_matrix_ref(p):
 
 def p_expr_6(p):
     """expr : ID
-            | matrix_ref"""
+            | matrix_ref
+            | STRING """
     p[0] = p[1] if isinstance(p[1], AST.Ref) else AST.Variable(p[1], lineno=p.lineno(1))
 
 
@@ -225,9 +226,9 @@ def p_printable_1(p):
     p[0] = p[1]
 
 
-def p_printable_2(p):
-    """printable : STRING """
-    p[0] = AST.String(p[1], lineno=p.lineno(1))
+# def p_printable_2(p):
+#     """printable : STRING """
+#     p[0] = AST.String(p[1], lineno=p.lineno(1))
 
 
 def p_return_statement_1(p):
@@ -240,9 +241,9 @@ def p_return_statement_2(p):
     p[0] = AST.ReturnStatement(p[2], lineno=p.lineno(1))
 
 
-def p_return_statement_3(p):
-    """return_statement : RETURN STRING """
-    p[0] = AST.ReturnStatement(AST.String(p[2]), lineno=p.lineno(1))
+# def p_return_statement_3(p):
+#     """return_statement : RETURN STRING """
+#     p[0] = AST.ReturnStatement(AST.String(p[2]), lineno=p.lineno(1))
 
 
 parser = yacc.yacc()
