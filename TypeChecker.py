@@ -166,7 +166,8 @@ class TypeChecker(NodeVisitor):
             if len(type1) == len(type2) == 3:
                 rows1, cols1, vals1 = type1[0], type1[1], type1[2]
                 rows2, cols2, vals2 = type2[0], type2[1], type2[2]
-                if not (rows1 == rows2 and cols1 == cols2):
+                if not ((rows1 == rows2 or "VARIABLE_SIZE" in [rows1, rows2])
+                        and (cols1 == cols2 or "VARIABLE_SIZE" in [cols1, cols2])):
                     print(Error('diff_ty', node.lineno))
                     return None
                 if not ttype_contains((op, vals1, vals2)):
@@ -175,6 +176,8 @@ class TypeChecker(NodeVisitor):
                 return (rows1, cols1, ttype[op][vals1][vals2])
             else:
                 print("matrices other than 3-dim nor supported, ", node.lineno)
+                global is_error
+                is_error = True
                 return None
 
         if op in castable_matrix_operations:  # matrix op on non-matrix type
@@ -295,11 +298,18 @@ class TypeChecker(NodeVisitor):
         self.visit(n)
 
     def visit_MatrixSpecialWord(self, node):
-        type1 = self.visit(node.value)
-        if type1 != "int":
-            print(Error("inv_mat_arg", node.lineno))
-        size = node.value.value
-        return size, size, "int"
+        n = node.value
+        sizes = []
+        while isinstance(n, AST.Node):
+            if self.visit(n.right) != "int":
+                print(Error("inv_mat_arg", node.lineno))
+            if isinstance(n.right, AST.IntNum):
+                sizes = [n.right.value] + sizes
+            else:
+                sizes = ["VARIABLE_SIZE"] + sizes
+            n = n.left
+        res_type = sizes + ["int"]
+        return tuple(res_type)
 
     def visit_Vector(self, node):
         n = node.inside

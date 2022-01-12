@@ -107,7 +107,7 @@ def p_expr_2(p):
 
 
 def p_expr_3(p):
-    """expr : matrix_init_name '(' expr ')' """
+    """expr : matrix_init_name '(' vector_init ')' """
     p[0] = AST.MatrixSpecialWord(p[1], p[3], lineno=p.lineno(2))
 
 

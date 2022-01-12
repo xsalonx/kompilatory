@@ -42,6 +42,14 @@ def unary_minus(x):
         return [[(-1) * x[row][col] for col in range(len(x[0]))] for row in range(len(x))]
     return (-1) * x
 
+def create_fil_ndarray(sizes, fil):
+    result = []
+    if len(sizes) == 1:
+        return [fil] * sizes[0]
+    for i in range(sizes[0]):
+        result.append(create_fil_ndarray(sizes[1:], fil))
+    return result
+
 
 class Interpreter(object):
 
@@ -64,8 +72,8 @@ class Interpreter(object):
             '==': lambda x, y: x == y,
             'unary_minus': unary_minus,
             'eye': lambda size: [[1 if i == j else 0 for j in range(size)] for i in range(size)],
-            'zeros': lambda size: [[0] * size for i in range(size)],
-            'ones': lambda size: [[1] * size for i in range(size)]
+            'zeros': lambda sizes: create_fil_ndarray(sizes, 0),
+            'ones': lambda sizes: create_fil_ndarray(sizes, 1)
         }
         self.assignment_op_dict = {
             '+=': lambda var, y: self.scopes.set(var, self.scopes.get(var) + y),
@@ -219,8 +227,8 @@ class Interpreter(object):
 
     @when(AST.MatrixSpecialWord)
     def visit(self, node):
-        size = self.visit(node.value)
-        return self.op_dict[node.word](size)
+        sizes = self.visit(AST.Vector(node.value))
+        return self.op_dict[node.word](sizes)
 
     @when(AST.Vector)
     def visit(self, node):
