@@ -23,6 +23,8 @@ class MemoryStack:
         self.mem_stack = []
         if memory:
             self.mem_stack.append(memory)
+        else:
+            self.mem_stack.append(Memory('default'))
 
     def get(self, name):  # gets from memory stack current value of variable <name>
         mem_stack_it = len(self.mem_stack) - 1

@@ -10,7 +10,7 @@ from Interpreter import Interpreter
 if __name__ == '__main__':
 
     try:
-        filename = sys.argv[1] if len(sys.argv) > 1 else "examples/operators.m"
+        filename = sys.argv[1] if len(sys.argv) > 1 else "examples/mock_matrices.m"
         file = open(filename, "r")
     except IOError:
         print("Cannot open {0} file".format(filename))
@@ -27,7 +27,7 @@ if __name__ == '__main__':
         typeChecker = TypeChecker.TypeChecker()
         typeChecker.visit(ast)   # or alternatively ast.accept(typeChecker)
         if not TypeChecker.is_error:
-            ast.accept(Interpreter())
+            Interpreter().visit(ast)
 
     # in future
     # ast.accept(OptimizationPass1())

@@ -7,6 +7,7 @@ import sys
 
 sys.setrecursionlimit(10000)
 
+DEBUG = False
 
 
 def dot_add(x, y):
@@ -46,7 +47,7 @@ def unary_minus(x):
 class Interpreter(object):
 
     def __init__(self):
-        self.scopes = MemoryStack()
+        self.scopes = MemoryStack(Memory('global'))
         self.op_dict = {
             '+': lambda x, y: x + y,
             '-': lambda x, y: x - y,
@@ -86,7 +87,7 @@ class Interpreter(object):
 
     @when(AST.Scope)
     def visit(self, node):
-        pass
+        self.visit(node.instructions)
 
     @when(AST.IntNum)
     def visit(self, node):
@@ -107,7 +108,9 @@ class Interpreter(object):
     @when(AST.BinaryExpr)
     def visit(self, node):
         op = node.op
+        if DEBUG: print("DEBUG interpreter: bin expr", node.op)
         if op in self.assignment_op_dict:
+            if DEBUG: print("DEBUG: ", self.scopes)
             if isinstance(node.left, AST.Ref):
                 M = self.scopes.get(node.left.var.name)
                 row = node.left.x
@@ -119,9 +122,13 @@ class Interpreter(object):
                     M[row][col] = self.op_dict[op[0]](M[row][col], v)
             else:
                 self.assignment_op_dict[op](node.left.name, self.visit(node.right))
+            if DEBUG: print("DEBUG: ", self.scopes)
         else:
             vl = self.visit(node.left)
             vr = self.visit(node.right)
+            if DEBUG:
+                print(node.left, vl)
+                print(node.right, vr)
             return self.op_dict[op](vl, vr)
 
     @when(AST.Range)
@@ -179,6 +186,7 @@ class Interpreter(object):
     def visit(self, node):
         cond_node = node.condition
         while self.visit(cond_node):
+            if DEBUG: print("DEBUG interpreter WHILE LOOP: ", self.visit(cond_node), self.scopes.get('b'))
             try:
                 self.visit(node.block)
             except ReturnValueException as e:
