@@ -231,7 +231,7 @@ class Interpreter(object):
     @when(AST.Vector)
     def visit(self, node):
         result = []
-        n = node
+        n = node.inside
         while isinstance(n, AST.Node):
             result = [self.visit(n.right)] + result
             n = n.left
@@ -241,7 +241,7 @@ class Interpreter(object):
     @when(AST.Matrix)
     def visit(self, node):
         result = []
-        n = node
+        n = node.inside
         while isinstance(n, AST.Node):
             result = [self.visit(n.right)] + result
             n = n.left

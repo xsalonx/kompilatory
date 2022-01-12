@@ -125,6 +125,11 @@ class TreePrinter:
         print(branch * indent + "VECTOR")
         self.inside.printTree(indent + 1)
 
+    @addToClass(AST.Matrix)
+    def printTree(self, indent=0):
+        print(branch * indent + "MATRIX")
+        self.inside.printTree(indent + 1)
+
     @addToClass(AST.Error)
     def printTree(self, indent=0):
         pass

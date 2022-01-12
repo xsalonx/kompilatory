@@ -315,7 +315,7 @@ class TypeChecker(NodeVisitor):
         return (l, elem_type)
 
     def visit_Matrix(self, node):
-        n = node
+        n = node.inside
         size, elem_type = self.visit(n.right)
         rows_numb = 0
         while isinstance(n, AST.Node):
