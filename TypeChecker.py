@@ -9,6 +9,8 @@ symtable = SymbolTable.SymbolTable(None, "symtable")
 ttype = defaultdict(lambda: defaultdict(lambda: defaultdict(str)))
 
 ttype['+']["str"]["str"] = "str"
+ttype['*']["str"]["int"] = "str"
+ttype['*']["int"]["str"] = "str"
 
 ttype['+']["int"]["int"] = "int"
 ttype['-']["int"]["int"] = "int"
@@ -179,12 +181,11 @@ class TypeChecker(NodeVisitor):
             print(Error('mat_op_on_non_mat', node.lineno))
             return None
 
-        if type1 != type2:
-            print(type1, type2)
-            print(Error('diff_ty', node.lineno), '164')
-            return None
+        if ttype_contains((op[0], type1, type2)):
+            return ttype[op][type1][type2]
 
-        return ttype[op][type1][type2]
+        print(type1, type2)
+        print(Error('diff_ty', node.lineno), '164')
 
     def visit_Variable(self, node):
         var = symtable.get(node.name)
@@ -203,7 +204,7 @@ class TypeChecker(NodeVisitor):
         return "str"
 
     def visit_Range(self, node):
-        t1 = self.visit(node._from)
+        t1 = self.visit(node.from_)
         t2 = self.visit(node.to)
 
         return "int" if t1 == t2 == "int" else None
@@ -222,7 +223,7 @@ class TypeChecker(NodeVisitor):
         rows, cols, mat_type = var_type[0], var_type[1], var_type[2]
         if x_type == y_type == "int":
             if hasattr(node.x, "value") and (
-                    node.x.value <= 0 or node.x.value > rows or node.y.value <= 0 or node.y.value > cols):
+                    node.x.value < 0 or node.x.value >= rows or node.y.value < 0 or node.y.value >= cols):
                 print(Error("inv_mat_arg_values", node.lineno))
                 return None
             return mat_type
@@ -253,7 +254,7 @@ class TypeChecker(NodeVisitor):
             symtable.popScope()
 
     def visit_ForLoop(self, node):
-        type1 = self.visit(node._range)
+        type1 = self.visit(node.range_)
         if type1 != "int":
             print(Error("inv_range", node.lineno))
         symtable.put(node.var.name, type1)

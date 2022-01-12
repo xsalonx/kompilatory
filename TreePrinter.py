@@ -49,7 +49,7 @@ class TreePrinter:
     @addToClass(AST.Range)
     def printTree(self, indent=0):
         print(branch * indent + "RANGE")
-        self._from.printTree(indent + 1)
+        self.from_.printTree(indent + 1)
         self.to.printTree(indent + 1)
 
     @addToClass(AST.Ref)
@@ -83,7 +83,7 @@ class TreePrinter:
     def printTree(self, indent=0):
         print(branch * indent + "FOR")
         self.var.printTree(indent + 1)
-        self._range.printTree(indent + 1)
+        self.range_.printTree(indent + 1)
         self.block.printTree(indent + 1)
 
     @addToClass(AST.WhileLoop)

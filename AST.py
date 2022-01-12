@@ -44,8 +44,8 @@ class BinaryExpr:
 
 
 class Range:
-    def __init__(self, _from, to, lineno=None):
-        self._from = _from
+    def __init__(self, from_, to, lineno=None):
+        self.from_ = from_
         self.to = to
         self.lineno = lineno
 
@@ -79,9 +79,9 @@ class IfStatement:
 
 
 class ForLoop:
-    def __init__(self, var, _range, block, lineno=None):
+    def __init__(self, var, range_, block, lineno=None):
         self.var = var
-        self._range = _range
+        self.range_ = range_
         self.block = block
         self.lineno = lineno
 

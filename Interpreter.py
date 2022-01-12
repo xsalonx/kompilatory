@@ -110,11 +110,10 @@ class Interpreter(object):
         op = node.op
         if DEBUG: print("DEBUG interpreter: bin expr", node.op)
         if op in self.assignment_op_dict:
-            if DEBUG: print("DEBUG: ", self.scopes)
             if isinstance(node.left, AST.Ref):
                 M = self.scopes.get(node.left.var.name)
-                row = node.left.x
-                col = node.left.y
+                row = node.left.x.value
+                col = node.left.y.value
                 v = self.visit(node.right)
                 if op[0] == '=':
                     M[row][col] = v
@@ -122,24 +121,25 @@ class Interpreter(object):
                     M[row][col] = self.op_dict[op[0]](M[row][col], v)
             else:
                 self.assignment_op_dict[op](node.left.name, self.visit(node.right))
-            if DEBUG: print("DEBUG: ", self.scopes)
         else:
             vl = self.visit(node.left)
             vr = self.visit(node.right)
             if DEBUG:
-                print(node.left, vl)
-                print(node.right, vr)
+                print(node.left, vl, type(vl))
+                print(node.right, vr, type(vr))
             return self.op_dict[op](vl, vr)
 
     @when(AST.Range)
     def visit(self, node):
-        return range(node._from, node.to)
+        fr = self.visit(node.from_)
+        to = self.visit(node.to)
+        return range(fr, to)
 
     @when(AST.Ref)
     def visit(self, node):
         M = self.scopes.get(node.var.name)
-        row = node.x
-        col = node.y
+        row = node.x.value
+        col = node.y.value
         return M[row][col]
 
     @when(AST.UnaryMinus)
@@ -169,9 +169,9 @@ class Interpreter(object):
 
     @when(AST.ForLoop)
     def visit(self, node):
-        _range = self.visit(node._range)
+        range_ = self.visit(node.range_)
         varname = node.var.name
-        for _i in _range:
+        for _i in range_:
             try:
                 self.scopes.set(varname, _i)
                 self.visit(node.block)

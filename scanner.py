@@ -50,6 +50,7 @@ def t_ID(t):
 
 def t_FLOATNUM(t):
     r'((\.\d+)|(\d+\.\d*))([eE][+-]?\d+)?'
+    t.value = float(t.value)
     return t
 
 def t_INTNUM(t):
