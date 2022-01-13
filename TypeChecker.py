@@ -175,7 +175,8 @@ class TypeChecker(NodeVisitor):
                     return None
                 return (rows1, cols1, ttype[op][vals1][vals2])
             else:
-                print("matrices other than 3-dim nor supported, ", node.lineno)
+                print(op, type1, type2)
+                print("matrices other than 2-dim nor supported, ", node.lineno)
                 global is_error
                 is_error = True
                 return None
@@ -308,6 +309,15 @@ class TypeChecker(NodeVisitor):
             else:
                 sizes = ["VARIABLE_SIZE"] + sizes
             n = n.left
+        if self.visit(n) != "int":
+            print(Error("inv_mat_arg", node.lineno))
+        if isinstance(n, AST.IntNum):
+            sizes = [n.value] + sizes
+        else:
+            sizes = ["VARIABLE_SIZE"] + sizes
+
+        if len(sizes) == 1:
+            sizes = sizes * 2
         res_type = sizes + ["int"]
         return tuple(res_type)
 

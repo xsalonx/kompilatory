@@ -50,6 +50,20 @@ def create_fil_ndarray(sizes, fil):
         result.append(create_fil_ndarray(sizes[1:], fil))
     return result
 
+def create_square_eye_ndarray(sizes, fil):
+    v = sizes[0]
+    if not all([v == s for s in sizes]):
+        raise Exception("Wrong sizes of nd eye matrix")
+    M = create_fil_ndarray(sizes, 0)
+    for i in range(v):
+        submatrix = M
+        for depth in range(len(sizes) - 1):
+            submatrix = submatrix[i]
+        submatrix[i] = fil
+    return M
+
+
+
 
 class Interpreter(object):
 
@@ -71,7 +85,7 @@ class Interpreter(object):
             '!=': lambda x, y: x != y,
             '==': lambda x, y: x == y,
             'unary_minus': unary_minus,
-            'eye': lambda size: [[1 if i == j else 0 for j in range(size)] for i in range(size)],
+            'eye': lambda sizes: create_square_eye_ndarray(sizes, 1),
             'zeros': lambda sizes: create_fil_ndarray(sizes, 0),
             'ones': lambda sizes: create_fil_ndarray(sizes, 1)
         }
@@ -228,6 +242,8 @@ class Interpreter(object):
     @when(AST.MatrixSpecialWord)
     def visit(self, node):
         sizes = self.visit(AST.Vector(node.value))
+        if len(sizes) == 1:
+            sizes *= 2
         return self.op_dict[node.word](sizes)
 
     @when(AST.Vector)

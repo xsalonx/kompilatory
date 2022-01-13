@@ -1,6 +1,6 @@
 A = eye(3);
 B = ones(3);
-C = A .+ B;
+C = A .- B;
 print C;
 
 D = zeros(3, 4);
